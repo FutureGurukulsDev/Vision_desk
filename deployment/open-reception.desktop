@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=VisionDesk Reception
+Comment=Start VisionDesk backend and open Reception screen
+Exec=/home/pi/VisionDesk/deployment/launch-reception-app.sh
+Icon=/home/pi/VisionDesk/static/icons/visiondesk.svg
+Terminal=false
+Categories=Office;

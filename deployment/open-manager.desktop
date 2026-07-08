@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=VisionDesk Manager
+Comment=Open VisionDesk Manager dashboard
+Exec=chromium-browser http://visiondesk-reception.local:5000/manager
+Icon=/home/pi/VisionDesk/static/icons/visiondesk.svg
+Terminal=false
+Categories=Office;

@@ -1,0 +1,3 @@
+const managerSocket = io();
+function managerToast(title, message) { const c = document.getElementById("toastContainer"), t = document.createElement("div"); t.className = "toast text-bg-primary border-0"; t.innerHTML = `<div class="d-flex"><div class="toast-body"><strong>${title}</strong><br>${message}</div><button class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>`; c.appendChild(t); new bootstrap.Toast(t, { delay: 5000 }).show(); t.addEventListener("hidden.bs.toast", () => t.remove()) }
+managerSocket.on("connect", () => managerSocket.emit("join_role", { role: "manager" })); managerSocket.on("visitor_registered", ({ visitor }) => managerToast("New visitor registered", `${visitor.name} from ${visitor.company}`));

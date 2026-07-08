@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% set body_class = "manager-body manager-visitors-body" %}
+
+{% block content %}
+<main class="manager-shell">
+    <aside class="manager-sidebar">
+        <div class="brand-lockup compact">
+            <div class="brand-mark">VD</div>
+            <div>
+                <h1>VisionDesk</h1>
+                <p>Manager</p>
+            </div>
+        </div>
+        <nav class="manager-nav">
+            <a class="nav-pill nav-link-button" href="{{ url_for('manager.manager_page') }}">Manager Home</a>
+            <button class="nav-pill active" data-history="today">Today's Visitors</button>
+            <button class="nav-pill" data-history="yesterday">Yesterday</button>
+            <button class="nav-pill" data-history="weekly">Weekly</button>
+            <button class="nav-pill" data-history="monthly">Monthly</button>
+        </nav>
+        <div class="system-status">
+            <span class="pulse-dot"></span>
+            Realtime Connected
+        </div>
+    </aside>
+
+    <section class="manager-content">
+        <header class="manager-header">
+            <div>
+                <h2>Live Visitor Queue</h2>
+                <p>Approve visitors, send instructions, and monitor reception.</p>
+            </div>
+            <div class="search-wrap">
+                <input class="form-control form-control-lg" id="searchInput"
+                    placeholder="Search name, company, date, purpose">
+            </div>
+        </header>
+
+        <section class="stats-grid">
+            <div class="stat-card">
+                <span>Waiting</span>
+                <strong id="waitingCount">0</strong>
+            </div>
+            <div class="stat-card">
+                <span>Approved</span>
+                <strong id="approvedCount">0</strong>
+            </div>
+            <div class="stat-card">
+                <span>Total</span>
+                <strong id="totalCount">0</strong>
+            </div>
+        </section>
+
+        <section class="visitor-list" id="visitorList"></section>
+    </section>
+</main>
+
+<div class="modal fade" id="messageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content manager-modal">
+            <div class="modal-header">
+                <h5 class="modal-title">Send Custom Message</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="messageVisitorId">
+                <textarea class="form-control" id="customMessage" rows="5"
+                    placeholder="Type instruction for reception"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="sendCustomMessage">Send Message</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/manager.js') }}"></script>
+{% endblock %}

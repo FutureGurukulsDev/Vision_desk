@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type=Application
+Name=VisionDesk Manager Kiosk
+Exec=/home/pi/VisionDesk/deployment/manager-kiosk.sh
+X-GNOME-Autostart-enabled=true

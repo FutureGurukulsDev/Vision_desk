@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type=Application
+Name=VisionDesk Reception Kiosk
+Exec=/home/pi/VisionDesk/deployment/reception-kiosk.sh
+X-GNOME-Autostart-enabled=true

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% set body_class = "manager-body manager-home-body" %}
+{% block content %}
+<main class="manager-home-shell">
+    <header class="manager-home-header">
+        <div class="brand-lockup">
+            <div class="brand-mark">VD</div>
+            <div>
+                <h1>VisionDesk</h1>
+                <p>Manager Desk</p>
+            </div>
+        </div>
+        <div class="system-status"><span class="pulse-dot"></span> Reception system online</div>
+    </header>
+    <section class="manager-welcome"><span class="eyebrow">Manager workspace</span>
+        <h2>Welcome back</h2>
+        <p>Choose a workspace to review arrivals or send instant instructions.</p>
+    </section>
+    <section class="desk-grid" aria-label="Manager quick links">
+        <a class="desk-card primary" href="{{ url_for('manager.manager_visitors_page') }}">
+            <div>
+                <h3>Visitors</h3>
+                <p>Open the live queue, visitor history, approvals, and reception actions.</p>
+            </div>
+            <span class="desk-arrow">Open dashboard &rarr;</span>
+        </a>
+        <a class="desk-card primary" href="{{ url_for('manager.manager_quick_buttons_page') }}">
+            <div>
+                <h3>Quick Buttons</h3>
+                <p>Send instant instructions to the reception desk using predefined actions.</p>
+            </div>
+            <span class="desk-arrow">Open Quick Buttons &rarr;</span>
+        </a>
+    </section>
+</main>
+{% endblock %}
