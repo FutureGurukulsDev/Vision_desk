@@ -4,7 +4,7 @@
 <link href="{{ url_for('static', filename='css/reception.css') }}" rel="stylesheet">
 {% endblock %}
 {% block content %}
-<main class="reception-shell">
+<main class="reception-shell" data-active-panel="{{ active_panel }}">
     <section class="reception-hero">
         <div class="brand-lockup">
             <div class="brand-mark">VD</div>
@@ -22,8 +22,8 @@
     <div class="reception-layout">
         <aside class="reception-sidebar">
             <nav class="reception-nav">
-                <a href="{{ url_for('reception.reception_page') }}" class="nav-pill {% if active_panel != 'queue' %}active{% endif %}">Registration</a>
-                <a href="{{ url_for('reception.reception_queue_page') }}" class="nav-pill {% if active_panel == 'queue' %}active{% endif %}">Visitor Queue</a>
+                <button type="button" class="nav-pill nav-button {% if active_panel != 'queue' %}active{% endif %}" data-target="registrationPanel" data-route="{{ url_for('reception.reception_page') }}">Registration</button>
+                <button type="button" class="nav-pill nav-button {% if active_panel == 'queue' %}active{% endif %}" data-target="queuePanel" data-route="{{ url_for('reception.reception_queue_page') }}">Visitor Queue</button>
             </nav>
         </aside>
 
@@ -68,8 +68,6 @@
                                 <button class="btn btn-primary btn-lg" id="cameraToggleButton" type="button">Turn Camera On</button>
                                 <button class="btn btn-outline-primary btn-lg" id="captureButton" type="button" disabled>Capture Photo</button>
                             </div>
-                            <label class="btn btn-outline-primary btn-lg w-100 mt-2" for="devicePhoto">Use device camera / choose image</label>
-                            <input class="visually-hidden" id="devicePhoto" type="file" accept="image/*" capture="environment" multiple>
                             <div class="photo-strip" id="photoStrip"></div>
                             <p class="photo-help">Capture as many images as needed. Tap × to remove one.</p>
                         </div>

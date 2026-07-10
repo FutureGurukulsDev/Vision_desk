@@ -99,7 +99,7 @@ capture.onclick = async () => {
         capture.disabled = false;
     }
 };
-document.getElementById("devicePhoto").onchange = async e => { for (const file of e.target.files) { try { await uploadBlob(file) } catch (x) { toast("Upload failed", x.message, "danger") } } e.target.value = "" }; strip.onclick = e => { const b = e.target.closest("[data-remove]"); if (b) { photos.splice(Number(b.dataset.remove), 1); renderPhotos() } };
+strip.onclick = e => { const b = e.target.closest("[data-remove]"); if (b) { photos.splice(Number(b.dataset.remove), 1); renderPhotos() } };
 function firstMissing() { return [...form.querySelectorAll("[required]")].find(x => !x.value.trim()) }
 
 form.onsubmit = async e => {
@@ -183,6 +183,7 @@ const navButtons = document.querySelectorAll(".nav-button");
 const pagePanels = document.querySelectorAll(".page-panel");
 const visitorQueueList = document.getElementById("visitorQueueList");
 const refreshQueueButton = document.getElementById("refreshQueue");
+const receptionShell = document.querySelector(".reception-shell");
 
 function setActivePage(targetId) {
     pagePanels.forEach(panel => {
@@ -231,6 +232,11 @@ async function loadQueue() {
 
 navButtons.forEach(button => {
     button.addEventListener("click", () => {
+        const route = button.dataset.route;
+        if (route) {
+            window.location.href = route;
+            return;
+        }
         setActivePage(button.dataset.target);
         if (button.dataset.target === "queuePanel") {
             loadQueue();
@@ -242,7 +248,11 @@ if (refreshQueueButton) {
     refreshQueueButton.addEventListener("click", () => loadQueue());
 }
 
-setActivePage("registrationPanel");
+const initialPanel = receptionShell?.dataset.activePanel === "queue" ? "queuePanel" : "registrationPanel";
+setActivePage(initialPanel);
+if (initialPanel === "queuePanel") {
+    loadQueue();
+}
 
 if (detailsPage) {
     const visitorId = window.VisionDesk?.visitorId;
@@ -258,21 +268,31 @@ if (detailsPage) {
     }
 }
 
+function closePhotoOverlay() {
+    if (!photoOverlay) return;
+    photoOverlay.classList.remove("active");
+    if (photoOverlayImage) {
+        photoOverlayImage.removeAttribute("src");
+    }
+}
+
 if (photoOverlayClose) {
-    photoOverlayClose.addEventListener("click", () => {
-        photoOverlay?.classList.remove("active");
-        photoOverlayImage.src = "";
-    });
+    photoOverlayClose.addEventListener("click", closePhotoOverlay);
 }
 
 if (photoOverlay) {
     photoOverlay.addEventListener("click", event => {
         if (event.target === photoOverlay) {
-            photoOverlay.classList.remove("active");
-            photoOverlayImage.src = "";
+            closePhotoOverlay();
         }
     });
 }
+
+document.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+        closePhotoOverlay();
+    }
+});
 
 socket.on("connect", () => socket.emit("join_role", { role: "reception" }));
 socket.on("visitor_status_updated", ({ visitor, message }) => {
