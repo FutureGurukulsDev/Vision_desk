@@ -34,6 +34,10 @@
                 <h2>Live Visitor Queue</h2>
                 <p>Approve visitors, send instructions, and monitor reception.</p>
             </div>
+            <div class="header-actions">
+                <span class="text-white small">{{ manager_username or 'Manager' }}</span>
+                <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('manager.manager_logout_page') }}">Logout</a>
+            </div>
             <div class="search-wrap">
                 <input class="form-control form-control-lg" id="searchInput"
                     placeholder="Search name, company, date, purpose">

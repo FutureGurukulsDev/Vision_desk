@@ -1,5 +1,6 @@
 """Application configuration for VisionDesk."""
 
+import datetime
 import os
 from pathlib import Path
 
@@ -43,3 +44,4 @@ class Config:
         "VISIONDESK_SOCKETIO_CORS_ALLOWED_ORIGINS",
         "*",
     )
+    PERMANENT_SESSION_LIFETIME = datetime.timedelta(days=14)

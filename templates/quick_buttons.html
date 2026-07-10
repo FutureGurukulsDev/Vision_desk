@@ -80,6 +80,10 @@
                 </p>
 
             </div>
+            <div class="header-actions">
+                <span class="text-white small">{{ manager_username or 'Manager' }}</span>
+                <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('manager.manager_logout_page') }}">Logout</a>
+            </div>
 
         </div>
 

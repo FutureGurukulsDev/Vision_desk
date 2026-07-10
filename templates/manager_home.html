@@ -13,7 +13,10 @@
                 <p>Manager Desk</p>
             </div>
         </div>
-        <div class="system-status"><span class="pulse-dot"></span> Reception system online</div>
+        <div class="header-actions">
+            <span class="system-status"><span class="pulse-dot"></span> Reception system online</span>
+            <a class="btn btn-outline-light btn-sm" href="{{ url_for('manager.manager_logout_page') }}">Logout</a>
+        </div>
     </header>
     <section class="manager-welcome"><span class="eyebrow">Manager workspace</span>
         <h2>Welcome back</h2>

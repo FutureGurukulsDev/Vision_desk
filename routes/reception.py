@@ -20,16 +20,43 @@ def reception_queue_page():
 
 @reception_bp.route("/login", methods=["GET", "POST"])
 def login_page():
-    """Render a login screen that accepts either username or email."""
+    """Render a login screen that accepts either username or email and supports signup."""
     error = None
+    mode = "login"
+    identifier = ""
+    username = ""
+    email = ""
+
     if request.method == "POST":
-        identifier = (request.form.get("identifier") or "").strip()
+        mode = request.form.get("mode", "login")
         password = (request.form.get("password") or "").strip()
-        if not identifier or not password:
-            error = "Enter both user name/email and password."
+
+        if mode == "signup":
+            username = (request.form.get("username") or "").strip()
+            email = (request.form.get("email") or "").strip()
+            if not username or not email or not password:
+                error = "Enter a user name, email, and password to create an account."
+            else:
+                return redirect(url_for("reception.reception_page"))
         else:
-            return redirect(url_for("reception.reception_page"))
-    return render_template("login.html", page_title="Login", error=error)
+            identifier = (request.form.get("identifier") or "").strip()
+            if not identifier or not password:
+                error = "Enter both user name/email and password."
+            else:
+                return redirect(url_for("reception.reception_page"))
+
+    return render_template(
+        "login.html",
+        page_title="Login",
+        error=error,
+        mode=mode,
+        identifier=identifier,
+        username=username,
+        email=email,
+        allow_signup=True,
+        role="reception",
+        next=url_for("reception.reception_page"),
+    )
 
 
 @reception_bp.route("/reception/visitor/<int:visitor_id>")

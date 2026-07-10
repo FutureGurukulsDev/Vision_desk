@@ -10,26 +10,83 @@
     <div class="login-card card shadow-sm">
         <div class="card-body">
             <div class="text-center mb-4">
-                <h1 class="h3 mb-1">VisionDesk Login</h1>
-                <p class="text-muted">Use your user name or email to sign in.</p>
+                <h1 class="h3 mb-1">VisionDesk {{ 'Manager Login' if role == 'manager' else 'Login' }}</h1>
+                <p class="text-muted">
+                    {% if role == 'manager' %}
+                        Enter manager credentials to access the admin workspace.
+                    {% else %}
+                        Use your user name or email to sign in.
+                    {% endif %}
+                </p>
             </div>
             {% if error %}
             <div class="alert alert-danger" role="alert">{{ error }}</div>
             {% endif %}
             <form method="post" novalidate>
-                <div class="mb-3">
-                    <label class="form-label" for="identifier">User Name or Email</label>
-                    <input type="text" class="form-control form-control-lg" id="identifier" name="identifier" required>
+                <input type="hidden" id="auth-mode-input" name="mode" value="{{ mode }}">
+                <input type="hidden" name="next" value="{{ next }}">
+                {% if allow_signup %}
+                <div class="auth-mode-tabs mb-4">
+                    <button type="button" class="btn btn-outline-primary auth-mode-btn {% if mode == 'login' %}active{% endif %}" data-mode="login">Sign In</button>
+                    <button type="button" class="btn btn-outline-primary auth-mode-btn {% if mode == 'signup' %}active{% endif %}" data-mode="signup">Sign Up</button>
                 </div>
-                <div class="mb-4">
-                    <label class="form-label" for="password">Password</label>
-                    <input type="password" class="form-control form-control-lg" id="password" name="password" required>
+                {% endif %}
+                <div class="auth-login-fields {% if mode != 'login' %}d-none{% endif %}">
+                    <div class="mb-3">
+                        <label class="form-label" for="identifier">User Name or Email</label>
+                        <input type="text" class="form-control form-control-lg" id="identifier" name="identifier" value="{{ identifier or '' }}" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label" for="password">Password</label>
+                        <input type="password" class="form-control form-control-lg" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg w-100">Sign In</button>
                 </div>
-                <button type="submit" class="btn btn-primary btn-lg w-100">Sign In</button>
+                <div id="signup-fields" class="{% if mode != 'signup' %}d-none{% endif %}">
+                    <div class="mb-3">
+                        <label class="form-label" for="username">Choose a User Name</label>
+                        <input type="text" class="form-control form-control-lg" id="username" name="username" value="{{ username or '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="email">Email Address</label>
+                        <input type="email" class="form-control form-control-lg" id="email" name="email" value="{{ email or '' }}" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label" for="password">Password</label>
+                        <input type="password" class="form-control form-control-lg" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-lg w-100">Create Account</button>
+                </div>
             </form>
             <div class="mt-4 text-center text-muted small">
-                No account? Use your existing reception credentials.
+                {% if allow_signup %}
+                    {% if mode == 'signup' %}
+                        Already have an account? Tap Sign In.
+                    {% else %}
+                        Need an account? Tap Sign Up and enter a user name.
+                    {% endif %}
+                {% else %}
+                    Enter your manager credentials to continue.
+                {% endif %}
             </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const buttons = document.querySelectorAll('.auth-mode-btn');
+                    const authModeInput = document.getElementById('auth-mode-input');
+                    const loginFields = document.querySelector('.auth-login-fields');
+                    const signupFields = document.getElementById('signup-fields');
+
+                    buttons.forEach(function (button) {
+                        button.addEventListener('click', function () {
+                            const mode = this.dataset.mode;
+                            authModeInput.value = mode;
+                            buttons.forEach(btn => btn.classList.toggle('active', btn.dataset.mode === mode));
+                            loginFields.classList.toggle('d-none', mode !== 'login');
+                            signupFields.classList.toggle('d-none', mode !== 'signup');
+                        });
+                    });
+                });
+            </script>
         </div>
     </div>
 </main>
