@@ -1,0 +1,30 @@
+.login-shell {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 1.5rem;
+    background: linear-gradient(180deg, #f8fbff 0%, #eef5ff 100%);
+}
+
+.login-card {
+    width: min(420px, 100%);
+    border-radius: 24px;
+    padding: 0;
+    overflow: hidden;
+}
+
+.login-card .card-body {
+    padding: 2rem;
+}
+
+.login-card .form-label {
+    font-weight: 600;
+}
+
+.login-card .btn {
+    border-radius: 14px;
+}
+
+.login-body {
+    background: #f4f7fc;
+}

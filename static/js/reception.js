@@ -100,6 +100,201 @@ capture.onclick = async () => {
     }
 };
 document.getElementById("devicePhoto").onchange = async e => { for (const file of e.target.files) { try { await uploadBlob(file) } catch (x) { toast("Upload failed", x.message, "danger") } } e.target.value = "" }; strip.onclick = e => { const b = e.target.closest("[data-remove]"); if (b) { photos.splice(Number(b.dataset.remove), 1); renderPhotos() } };
-function firstMissing() { return [...form.querySelectorAll("[required]")].find(x => !x.value.trim()) } form.onsubmit = async e => { e.preventDefault(); const missing = firstMissing(); if (missing) { missing.focus(); missing.classList.add("is-invalid"); return toast("Missing information", `Please fill in ${missing.previousElementSibling?.textContent || missing.name}.`, "warning") } form.querySelectorAll(".is-invalid").forEach(x => x.classList.remove("is-invalid")); const payload = Object.fromEntries(new FormData(form)); payload.photo_paths = photos; try { const r = await fetch("/api/visitors", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }), d = await r.json(); if (!r.ok) throw Error(d.error); activeVisitorId = d.visitor.id; socket.emit("join_visitor", { visitor_id: activeVisitorId }); document.getElementById("statusTitle").textContent = "Registration Successful"; document.getElementById("statusMessage").textContent = "Saved locally and sent to the manager."; document.getElementById("savedRegistration").classList.remove("d-none"); document.getElementById("savedRegistrationDetails").innerHTML = `<strong>${esc(d.visitor.name)}</strong> — ${esc(d.visitor.company)}<br>${d.visitor.photo_paths.length} photo(s) saved`; toast("Registration successful", `${d.visitor.name} is now in the manager queue.`, "success"); form.reset(); photos = []; renderPhotos(); await cameraOff() } catch (x) { toast("Registration failed", x.message, "danger") } };
-socket.on("connect", () => socket.emit("join_role", { role: "reception" })); socket.on("visitor_status_updated", ({ visitor, message }) => { if (activeVisitorId && visitor.id !== activeVisitorId) return; document.getElementById("statusTitle").textContent = visitor.status; document.getElementById("managerMessage").textContent = message?.message || ""; toast("Manager update", message?.message || visitor.status, visitor.status === "Rejected" ? "danger" : "success") }); socket.on("reception_message", ({ message }) => { document.getElementById("managerMessage").textContent = message.message; toast("Manager message", message.message, "info") });
-function clock() { const n = new Date(); document.getElementById("currentDate").textContent = n.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" }); document.getElementById("currentTime").textContent = n.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }) } clock(); setInterval(clock, 1000);
+function firstMissing() { return [...form.querySelectorAll("[required]")].find(x => !x.value.trim()) }
+
+form.onsubmit = async e => {
+    e.preventDefault();
+    const missing = firstMissing();
+    if (missing) {
+        missing.focus();
+        missing.classList.add("is-invalid");
+        return toast("Missing information", `Please fill in ${missing.previousElementSibling?.textContent || missing.name}.`, "warning");
+    }
+    form.querySelectorAll(".is-invalid").forEach(x => x.classList.remove("is-invalid"));
+    const payload = Object.fromEntries(new FormData(form));
+    payload.photo_paths = photos;
+
+    try {
+        const r = await fetch("/api/visitors", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+        const d = await r.json();
+        if (!r.ok) throw Error(d.error);
+
+        activeVisitorId = d.visitor.id;
+        socket.emit("join_visitor", { visitor_id: activeVisitorId });
+
+        document.getElementById("statusTitle").textContent = "Registration Successful";
+        document.getElementById("statusMessage").textContent = "Saved locally and sent to the manager.";
+        document.getElementById("savedRegistration").classList.remove("d-none");
+        document.getElementById("savedRegistrationDetails").innerHTML = `<strong>${esc(d.visitor.name)}</strong> — ${esc(d.visitor.company)}<br>${d.visitor.photo_paths.length} photo(s) saved`;
+        toast("Registration successful", `${d.visitor.name} is now in the manager queue.`, "success");
+
+        form.reset();
+        photos = [];
+        renderPhotos();
+        await cameraOff();
+    } catch (x) {
+        toast("Registration failed", x.message, "danger");
+    }
+};
+
+const detailsPage = document.getElementById("visitorDetails");
+const detailStatus = document.getElementById("detailStatus");
+const detailManagerMessage = document.getElementById("detailManagerMessage");
+const detailPhotos = document.getElementById("detailPhotos");
+const photoOverlay = document.getElementById("photoOverlay");
+const photoOverlayImage = document.getElementById("photoOverlayImage");
+const photoOverlayClose = document.getElementById("photoOverlayClose");
+const viewVisitorDetailsButton = document.getElementById("viewVisitorDetails");
+
+async function loadVisitorDetails(visitorId) {
+    const r = await fetch(`/api/visitors/${visitorId}`);
+    if (!r.ok) throw Error("Unable to load visitor details.");
+    const data = await r.json();
+    const visitor = data.visitor;
+    document.getElementById("detailName").textContent = visitor.name || "N/A";
+    document.getElementById("detailCompany").textContent = visitor.company || "N/A";
+    document.getElementById("detailPhone").textContent = visitor.phone || "N/A";
+    document.getElementById("detailEmail").textContent = visitor.email || "N/A";
+    document.getElementById("detailPurpose").textContent = visitor.purpose || "N/A";
+    document.getElementById("detailPersonToMeet").textContent = visitor.person_to_meet || "N/A";
+    detailStatus.textContent = visitor.status || "Waiting";
+    detailManagerMessage.textContent = visitor.messages?.length ? visitor.messages[visitor.messages.length - 1].message : "Waiting for manager instructions.";
+    detailPhotos.innerHTML = visitor.photo_paths.length
+        ? visitor.photo_paths.map(path => `<div class="photo-thumb"><img src="${esc(path)}" alt="Visitor photo" data-photo="${esc(path)}"></div>`).join("")
+        : `<div class="empty-state">No photos available.</div>`;
+    if (photoOverlay) {
+        detailPhotos.querySelectorAll("img").forEach(img => img.addEventListener("click", () => {
+            photoOverlay.classList.add("active");
+            photoOverlayImage.src = img.dataset.photo;
+        }));
+    }
+}
+
+if (viewVisitorDetailsButton) {
+    viewVisitorDetailsButton.addEventListener("click", () => {
+        if (!activeVisitorId) {
+            return toast("No visitor selected", "Please register a visitor first.", "warning");
+        }
+        window.location.href = `/reception/visitor/${activeVisitorId}`;
+    });
+}
+
+const navButtons = document.querySelectorAll(".nav-button");
+const pagePanels = document.querySelectorAll(".page-panel");
+const visitorQueueList = document.getElementById("visitorQueueList");
+const refreshQueueButton = document.getElementById("refreshQueue");
+
+function setActivePage(targetId) {
+    pagePanels.forEach(panel => {
+        panel.classList.toggle("d-none", panel.id !== targetId);
+    });
+    navButtons.forEach(button => {
+        button.classList.toggle("active", button.dataset.target === targetId);
+    });
+}
+
+async function loadQueue() {
+    if (!visitorQueueList) return;
+    visitorQueueList.innerHTML = `<div class="empty-state">Loading visitors…</div>`;
+    try {
+        const r = await fetch("/api/visitors?status=Waiting");
+        const data = await r.json();
+        if (!r.ok) throw Error(data.error || "Unable to load queue.");
+        const visitors = data.visitors || [];
+        if (!visitors.length) {
+            visitorQueueList.innerHTML = `<div class="empty-state">No waiting visitors found.</div>`;
+            return;
+        }
+        visitorQueueList.innerHTML = visitors.map(v => `
+            <div class="queue-card">
+                <div class="queue-head">
+                    <h3>${esc(v.name)}</h3>
+                    <span class="queue-badge">${esc(v.status)}</span>
+                </div>
+                <p><strong>Company:</strong> ${esc(v.company)}</p>
+                <p><strong>Purpose:</strong> ${esc(v.purpose)}</p>
+                <p><strong>Person to meet:</strong> ${esc(v.person_to_meet)}</p>
+                <div class="queue-actions">
+                    <button class="btn btn-outline-primary btn-sm" type="button" data-view="${v.id}">View details</button>
+                </div>
+            </div>
+        `).join("");
+        visitorQueueList.querySelectorAll("[data-view]").forEach(button => {
+            button.addEventListener("click", () => {
+                window.location.href = `/reception/visitor/${button.dataset.view}`;
+            });
+        });
+    } catch (error) {
+        visitorQueueList.innerHTML = `<div class="empty-state text-danger">${esc(error.message)}</div>`;
+    }
+}
+
+navButtons.forEach(button => {
+    button.addEventListener("click", () => {
+        setActivePage(button.dataset.target);
+        if (button.dataset.target === "queuePanel") {
+            loadQueue();
+        }
+    });
+});
+
+if (refreshQueueButton) {
+    refreshQueueButton.addEventListener("click", () => loadQueue());
+}
+
+setActivePage("registrationPanel");
+
+if (detailsPage) {
+    const visitorId = window.VisionDesk?.visitorId;
+    if (visitorId) {
+        loadVisitorDetails(visitorId).catch(error => toast("Load failed", error.message, "danger"));
+        socket.emit("join_visitor", { visitor_id: visitorId });
+    }
+    const backButton = document.getElementById("backToRegistration");
+    if (backButton) {
+        backButton.addEventListener("click", () => {
+            window.location.href = "/reception";
+        });
+    }
+}
+
+if (photoOverlayClose) {
+    photoOverlayClose.addEventListener("click", () => {
+        photoOverlay?.classList.remove("active");
+        photoOverlayImage.src = "";
+    });
+}
+
+if (photoOverlay) {
+    photoOverlay.addEventListener("click", event => {
+        if (event.target === photoOverlay) {
+            photoOverlay.classList.remove("active");
+            photoOverlayImage.src = "";
+        }
+    });
+}
+
+socket.on("connect", () => socket.emit("join_role", { role: "reception" }));
+socket.on("visitor_status_updated", ({ visitor, message }) => {
+    if (activeVisitorId && visitor.id !== activeVisitorId && !detailsPage) return;
+    const statusTarget = detailsPage ? detailStatus : document.getElementById("statusTitle");
+    const messageTarget = detailsPage ? detailManagerMessage : document.getElementById("managerMessage");
+    if (statusTarget) statusTarget.textContent = visitor.status;
+    if (messageTarget) messageTarget.textContent = message?.message || visitor.status;
+    toast("Manager update", message?.message || visitor.status, visitor.status === "Rejected" ? "danger" : "success");
+});
+
+socket.on("reception_message", ({ message }) => {
+    const messageTarget = detailsPage ? detailManagerMessage : document.getElementById("managerMessage");
+    if (messageTarget) messageTarget.textContent = message.message;
+    toast("Manager message", message.message, "info");
+});
+
+function clock() {
+    const n = new Date();
+    document.getElementById("currentDate").textContent = n.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+    document.getElementById("currentTime").textContent = n.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+}
+
+clock();
+setInterval(clock, 1000);

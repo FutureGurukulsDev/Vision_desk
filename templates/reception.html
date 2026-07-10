@@ -1,6 +1,115 @@
-{% extends "base.html" %}{% set body_class="reception-body" %}{% block content %}
-<main class="reception-shell"><section class="reception-hero"><div class="brand-lockup"><div class="brand-mark">VD</div><div><h1>VisionDesk</h1><p>Smart Reception</p></div></div><div class="time-panel"><span id="currentDate">--</span><strong id="currentTime">--:--</strong></div></section>
-<section class="reception-grid"><div class="card touch-card"><div class="card-body"><div class="section-title"><span>Visitor Registration</span><small>Reception</small></div><form id="visitorForm" novalidate><div class="row g-3"><div class="col-md-6"><label class="form-label" for="name">Visitor Name</label><input class="form-control form-control-lg" id="name" name="name" required></div><div class="col-md-6"><label class="form-label" for="company">Company Name</label><input class="form-control form-control-lg" id="company" name="company" required></div><div class="col-md-6"><label class="form-label" for="phone">Mobile Number</label><input class="form-control form-control-lg" id="phone" name="phone" required></div><div class="col-md-6"><label class="form-label" for="email">Email</label><input class="form-control form-control-lg" id="email" name="email" type="email"></div><div class="col-md-6"><label class="form-label" for="purpose">Purpose of Visit</label><input class="form-control form-control-lg" id="purpose" name="purpose" required></div><div class="col-md-6"><label class="form-label" for="personToMeet">Person To Meet</label><input class="form-control form-control-lg" id="personToMeet" name="person_to_meet" required></div></div><button class="btn btn-primary btn-lg w-100 mt-4 action-button" type="submit">Save Registration</button></form></div></div>
-<div class="card touch-card"><div class="card-body"><div class="section-title"><span>Visitor Photos</span><small>Person, card, or document</small></div><div class="camera-preview camera-off" id="cameraPreview"><video id="cameraVideo" playsinline autoplay muted></video><div class="preview-placeholder" id="cameraPlaceholder"><div class="camera-dot"></div><p id="cameraStateText">Tap Turn Camera On</p></div></div><canvas id="cameraCanvas" class="d-none"></canvas><div class="camera-controls"><button class="btn btn-primary btn-lg" id="cameraToggleButton" type="button">Turn Camera On</button><button class="btn btn-outline-primary btn-lg" id="captureButton" type="button" disabled>Capture Photo</button></div><label class="btn btn-outline-primary btn-lg w-100 mt-2" for="devicePhoto">Use device camera / choose image</label><input class="visually-hidden" id="devicePhoto" type="file" accept="image/*" capture="environment" multiple><div class="photo-strip" id="photoStrip"></div><p class="photo-help">Capture as many images as needed. Tap × to remove one.</p></div></div></section>
-<section class="waiting-panel"><h2 id="statusTitle">Welcome to Reception</h2><p id="statusMessage">Complete the form and add photos if required.</p><div class="manager-message" id="managerMessage"></div><div class="saved-registration d-none" id="savedRegistration"><div class="saved-title">Registration Saved</div><div id="savedRegistrationDetails"></div></div></section></main>
-{% endblock %}{% block scripts %}<script src="{{ url_for('static',filename='js/reception.js') }}"></script>{% endblock %}
+{% extends "base.html" %}
+{% set body_class="reception-body" %}
+{% block extra_css %}
+<link href="{{ url_for('static', filename='css/reception.css') }}" rel="stylesheet">
+{% endblock %}
+{% block content %}
+<main class="reception-shell">
+    <section class="reception-hero">
+        <div class="brand-lockup">
+            <div class="brand-mark">VD</div>
+            <div>
+                <h1>VisionDesk</h1>
+                <p>Smart Reception</p>
+            </div>
+        </div>
+        <div class="time-panel">
+            <span id="currentDate">--</span>
+            <strong id="currentTime">--:--</strong>
+        </div>
+    </section>
+
+    <div class="reception-layout">
+        <aside class="reception-sidebar">
+            <nav class="reception-nav">
+                <a href="{{ url_for('reception.reception_page') }}" class="nav-pill {% if active_panel != 'queue' %}active{% endif %}">Registration</a>
+                <a href="{{ url_for('reception.reception_queue_page') }}" class="nav-pill {% if active_panel == 'queue' %}active{% endif %}">Visitor Queue</a>
+            </nav>
+        </aside>
+
+        <section class="reception-content">
+            <div class="page-panel {{ '' if active_panel == 'registration' else 'd-none' }}" id="registrationPanel">
+                <div class="reception-grid">
+                    <div class="card touch-card">
+                        <div class="card-body">
+                            <div class="section-title">
+                                <span>Visitor Registration</span>
+                                <small>Reception</small>
+                            </div>
+                            <form id="visitorForm" novalidate>
+                                <div class="row g-3">
+                                    <div class="col-md-6"><label class="form-label" for="name">Visitor Name</label><input class="form-control form-control-lg" id="name" name="name" required></div>
+                                    <div class="col-md-6"><label class="form-label" for="company">Company Name</label><input class="form-control form-control-lg" id="company" name="company" required></div>
+                                    <div class="col-md-6"><label class="form-label" for="phone">Mobile Number</label><input class="form-control form-control-lg" id="phone" name="phone" required></div>
+                                    <div class="col-md-6"><label class="form-label" for="email">Email</label><input class="form-control form-control-lg" id="email" name="email" type="email"></div>
+                                    <div class="col-md-6"><label class="form-label" for="purpose">Purpose of Visit</label><input class="form-control form-control-lg" id="purpose" name="purpose" required></div>
+                                    <div class="col-md-6"><label class="form-label" for="personToMeet">Person To Meet</label><input class="form-control form-control-lg" id="personToMeet" name="person_to_meet" required></div>
+                                </div>
+                                <button class="btn btn-primary btn-lg w-100 mt-4 action-button" type="submit">Save Registration</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card touch-card">
+                        <div class="card-body">
+                            <div class="section-title">
+                                <span>Visitor Photos</span>
+                                <small>Person, card, or document</small>
+                            </div>
+                            <div class="camera-preview camera-off" id="cameraPreview">
+                                <video id="cameraVideo" playsinline autoplay muted></video>
+                                <div class="preview-placeholder" id="cameraPlaceholder">
+                                    <div class="camera-dot"></div>
+                                    <p id="cameraStateText">Tap Turn Camera On</p>
+                                </div>
+                            </div>
+                            <canvas id="cameraCanvas" class="d-none"></canvas>
+                            <div class="camera-controls">
+                                <button class="btn btn-primary btn-lg" id="cameraToggleButton" type="button">Turn Camera On</button>
+                                <button class="btn btn-outline-primary btn-lg" id="captureButton" type="button" disabled>Capture Photo</button>
+                            </div>
+                            <label class="btn btn-outline-primary btn-lg w-100 mt-2" for="devicePhoto">Use device camera / choose image</label>
+                            <input class="visually-hidden" id="devicePhoto" type="file" accept="image/*" capture="environment" multiple>
+                            <div class="photo-strip" id="photoStrip"></div>
+                            <p class="photo-help">Capture as many images as needed. Tap × to remove one.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="waiting-panel">
+                    <h2 id="statusTitle">Welcome to Reception</h2>
+                    <p id="statusMessage">Complete the form and add photos if required.</p>
+                    <div class="manager-message" id="managerMessage"></div>
+                    <div class="saved-registration d-none" id="savedRegistration">
+                        <div class="saved-title">Registration Saved</div>
+                        <div id="savedRegistrationDetails"></div>
+                        <button class="btn btn-outline-primary w-100 mt-3" id="viewVisitorDetails" type="button">View visitor details</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-panel {{ '' if active_panel == 'queue' else 'd-none' }}" id="queuePanel">
+                <div class="section-title queue-header">
+                    <div>
+                        <span>Visitor Queue</span>
+                        <small>Waiting visitors</small>
+                    </div>
+                    <button class="btn btn-outline-primary" id="refreshQueue" type="button">Refresh</button>
+                </div>
+                <div class="queue-list" id="visitorQueueList">
+                    <div class="empty-state">Loading visitors…</div>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<div class="photo-overlay" id="photoOverlay">
+    <button type="button" class="photo-overlay-close" id="photoOverlayClose" aria-label="Close">&times;</button>
+    <img id="photoOverlayImage" alt="Photo preview">
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static',filename='js/reception.js') }}"></script>
+{% endblock %}

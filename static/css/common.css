@@ -1,0 +1,151 @@
+:root {
+    --black: #020817;
+    --black-soft: #07111f;
+    --black-panel: #0b1628;
+    --blue: #0b5cff;
+    --blue-deep: #003ea8;
+    --blue-soft: #eaf1ff;
+    --white: #ffffff;
+    --white-soft: rgba(255, 255, 255, 0.82);
+    --white-faint: rgba(255, 255, 255, 0.12);
+    --line-dark: rgba(255, 255, 255, 0.16);
+    --line-light: rgba(2, 8, 23, 0.14);
+    --shadow-blue: rgba(11, 92, 255, 0.26);
+    --shadow-black: rgba(2, 8, 23, 0.28);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+    letter-spacing: 0;
+}
+
+.brand-lockup {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.brand-lockup h1,
+.brand-lockup p {
+    margin: 0;
+}
+
+.brand-lockup h1 {
+    font-size: 2rem;
+    font-weight: 900;
+}
+
+.brand-lockup p {
+    color: var(--white-soft);
+}
+
+.brand-lockup.compact h1 {
+    font-size: 1.45rem;
+}
+
+.brand-mark {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border: 2px solid var(--white);
+    border-radius: 16px;
+    color: var(--white);
+    background: var(--blue);
+    font-weight: 900;
+    box-shadow: 0 18px 45px var(--shadow-black);
+}
+
+.btn {
+    border-radius: 12px;
+}
+
+.btn-primary,
+.btn-success,
+.btn-info {
+    border-color: var(--blue);
+    color: var(--white);
+    background: var(--blue);
+}
+
+.btn-primary:hover,
+.btn-success:hover,
+.btn-info:hover {
+    border-color: var(--blue-deep);
+    color: var(--white);
+    background: var(--blue-deep);
+}
+
+.btn-danger,
+.btn-warning,
+.btn-secondary {
+    border-color: var(--black);
+    color: var(--white);
+    background: var(--black);
+}
+
+.btn-danger:hover,
+.btn-warning:hover,
+.btn-secondary:hover {
+    border-color: var(--blue-deep);
+    color: var(--white);
+    background: var(--blue-deep);
+}
+
+.btn-light,
+.btn-outline-light,
+.btn-outline-info,
+.btn-outline-primary {
+    border-color: var(--blue);
+    color: var(--blue);
+    background: var(--white);
+}
+
+.btn-light:hover,
+.btn-outline-light:hover,
+.btn-outline-info:hover,
+.btn-outline-primary:hover {
+    border-color: var(--blue);
+    color: var(--white);
+    background: var(--blue);
+}
+
+.text-bg-primary,
+.text-bg-success,
+.text-bg-info {
+    color: var(--white) !important;
+    background: var(--blue) !important;
+}
+
+.text-bg-danger,
+.text-bg-warning,
+.text-bg-secondary {
+    color: var(--white) !important;
+    background: var(--black) !important;
+}
+
+.form-label {
+    color: var(--black);
+    font-weight: 800;
+}
+
+.form-control {
+    border: 1px solid rgba(2, 8, 23, 0.22);
+    border-radius: 12px;
+    color: var(--black);
+    background: var(--white);
+}
+
+.form-control:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 0.22rem rgba(11, 92, 255, 0.18);
+}
+
+.toast-container .toast-body {
+    font-weight: 700;
+}

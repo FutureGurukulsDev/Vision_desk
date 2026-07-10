@@ -82,6 +82,11 @@ def list_visitors():
     query=apply_visitor_search(query,request.args.get("search",""))
     return jsonify({"visitors":[v.to_dict() for v in query.order_by(Visitor.arrival_time.desc()).all()]})
 
+@api_bp.get("/visitors/<int:visitor_id>")
+def get_visitor(visitor_id):
+    visitor = Visitor.query.get_or_404(visitor_id)
+    return jsonify({"visitor": visitor.to_dict()})
+
 @api_bp.patch("/visitors/<int:visitor_id>/status")
 def change_status(visitor_id):
     data=request.get_json(silent=True) or {}

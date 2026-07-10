@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% set body_class = "reception-body" %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='css/reception.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<main class="reception-shell reception-details-shell" id="visitorDetails" data-visitor-id="{{ visitor_id }}">
+    <section class="reception-hero">
+        <div class="brand-lockup">
+            <div class="brand-mark">VD</div>
+            <div>
+                <h1>VisionDesk</h1>
+                <p>Visitor Details</p>
+            </div>
+        </div>
+        <div class="time-panel">
+            <span id="currentDate">--</span>
+            <strong id="currentTime">--:--</strong>
+        </div>
+    </section>
+
+    <section class="reception-grid">
+        <div class="card touch-card details-summary">
+            <div class="card-body">
+                <div class="section-title">
+                    <span>Visitor Summary</span>
+                    <small>Registration data</small>
+                </div>
+                <div class="detail-row">
+                    <strong>Name</strong>
+                    <span id="detailName">Loading…</span>
+                </div>
+                <div class="detail-row">
+                    <strong>Company</strong>
+                    <span id="detailCompany">Loading…</span>
+                </div>
+                <div class="detail-row">
+                    <strong>Phone</strong>
+                    <span id="detailPhone">Loading…</span>
+                </div>
+                <div class="detail-row">
+                    <strong>Email</strong>
+                    <span id="detailEmail">Loading…</span>
+                </div>
+                <div class="detail-row">
+                    <strong>Purpose</strong>
+                    <span id="detailPurpose">Loading…</span>
+                </div>
+                <div class="detail-row">
+                    <strong>Person to meet</strong>
+                    <span id="detailPersonToMeet">Loading…</span>
+                </div>
+                <div class="section-title" style="margin-top:1rem;">
+                    <span>Photos</span>
+                    <small>Captured visitor images</small>
+                </div>
+                <div class="visitor-detail-photos" id="detailPhotos">
+                    <div class="empty-state">Loading photo gallery…</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card touch-card details-status">
+            <div class="card-body">
+                <div class="section-title">
+                    <span>Manager Instructions</span>
+                    <small>Realtime reception updates</small>
+                </div>
+                <div class="visitor-status-pill" id="detailStatus">Waiting</div>
+                <div class="manager-message" id="detailManagerMessage">Waiting for manager instructions.</div>
+                <button class="btn btn-outline-primary w-100 mt-3" id="backToRegistration" type="button">
+                    Back to registration
+                </button>
+            </div>
+        </div>
+    </section>
+</main>
+<div class="photo-overlay" id="photoOverlay">
+    <button type="button" class="photo-overlay-close" id="photoOverlayClose" aria-label="Close">&times;</button>
+    <img id="photoOverlayImage" alt="Photo preview">
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    window.VisionDesk = window.VisionDesk || {};
+    window.VisionDesk.visitorId = {{ visitor_id }};
+</script>
+<script src="{{ url_for('static', filename='js/reception.js') }}"></script>
+{% endblock %}

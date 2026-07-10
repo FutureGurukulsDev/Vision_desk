@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% set body_class = "manager-body manager-visitors-body" %}
 
+{% block extra_css %}
+<link href="{{ url_for('static', filename='css/manager.css') }}" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
 <main class="manager-shell">
     <aside class="manager-sidebar">
